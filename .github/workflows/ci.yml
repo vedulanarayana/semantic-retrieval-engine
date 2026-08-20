@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install lint tools
+        run: pip install ruff black
+      - name: Ruff
+        run: ruff check .
+      - name: Black
+        run: black --check .
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install system build tools
+        run: sudo apt-get update && sudo apt-get install -y cmake build-essential
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+      - name: Build C++ extension
+        run: |
+          export CMAKE_PREFIX_PATH="$(python -m pybind11 --cmakedir)"
+          ./scripts/build_cpp.sh
+      - name: Run tests
+        run: pytest tests/ -v
