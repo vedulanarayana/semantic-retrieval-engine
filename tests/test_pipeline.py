@@ -22,6 +22,5 @@ def test_chunker_handles_empty_text():
 
 def test_chunker_rejects_overlap_not_smaller_than_chunk_size():
     import pytest
-
     with pytest.raises(ValueError):
         TextChunker(chunk_size=10, overlap=10)

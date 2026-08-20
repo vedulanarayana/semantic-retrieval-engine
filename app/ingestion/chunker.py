@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from app.config import CHUNK_OVERLAP_WORDS, CHUNK_SIZE_WORDS
+from app.config import CHUNK_SIZE_WORDS, CHUNK_OVERLAP_WORDS
 
 
 class TextChunker:
@@ -20,17 +20,15 @@ class TextChunker:
         step = self.chunk_size - self.overlap
         chunks = []
         for i, start in enumerate(range(0, len(words), step)):
-            window = words[start : start + self.chunk_size]
+            window = words[start:start + self.chunk_size]
             if not window:
                 break
-            chunks.append(
-                {
-                    "doc_id": doc.get("id"),
-                    "chunk_index": i,
-                    "text": " ".join(window),
-                    "title": doc.get("title"),
-                }
-            )
+            chunks.append({
+                "doc_id": doc.get("id"),
+                "chunk_index": i,
+                "text": " ".join(window),
+                "title": doc.get("title"),
+            })
             if start + self.chunk_size >= len(words):
                 break
 

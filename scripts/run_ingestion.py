@@ -9,7 +9,6 @@ Each line of the input file should be a JSON object with at least
 Usage:
     python scripts/run_ingestion.py --corpus data/corpus.jsonl --index-type HNSW
 """
-
 import argparse
 import json
 

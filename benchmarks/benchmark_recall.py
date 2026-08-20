@@ -1,7 +1,6 @@
 import time
-from typing import List
-
 import numpy as np
+from typing import List
 
 from app.indexing.faiss_index import FAISSIndex
 
@@ -33,13 +32,11 @@ def run_benchmark(embeddings: np.ndarray, queries: np.ndarray, k: int = 10) -> L
             latencies.append((time.time() - start) * 1000)
             recalls.append(recall_at_k(indices, ground_truth[i], k))
 
-        results.append(
-            {
-                "index_type": index_type,
-                "avg_latency_ms": np.mean(latencies),
-                "p95_latency_ms": np.percentile(latencies, 95),
-                "recall_at_10": np.mean(recalls),
-            }
-        )
+        results.append({
+            "index_type": index_type,
+            "avg_latency_ms": np.mean(latencies),
+            "p95_latency_ms": np.percentile(latencies, 95),
+            "recall_at_10": np.mean(recalls),
+        })
 
     return results

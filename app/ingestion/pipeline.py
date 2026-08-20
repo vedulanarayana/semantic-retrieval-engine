@@ -1,12 +1,11 @@
-import multiprocessing as mp
 import time
-from typing import Dict, List, Tuple
-
+import multiprocessing as mp
+from typing import List, Dict, Tuple
 import numpy as np
 
-from app.config import NUM_WORKERS
 from app.ingestion.chunker import TextChunker
 from app.ingestion.embedder import EmbeddingGenerator
+from app.config import NUM_WORKERS
 
 
 def _embed_batch(doc_batch: List[Dict]) -> Tuple[List, List]:
@@ -45,12 +44,10 @@ class IngestionPipeline:
                 metadata.extend(chunks)
         return np.array(embeddings), metadata, time.time() - start
 
-    def ingest_multiprocess(
-        self, documents: List[Dict], workers: int = NUM_WORKERS
-    ) -> Tuple[np.ndarray, List, float]:
+    def ingest_multiprocess(self, documents: List[Dict], workers: int = NUM_WORKERS) -> Tuple[np.ndarray, List, float]:
         start = time.time()
         batch_size = max(1, len(documents) // workers)
-        batches = [documents[i : i + batch_size] for i in range(0, len(documents), batch_size)]
+        batches = [documents[i:i + batch_size] for i in range(0, len(documents), batch_size)]
 
         with mp.Pool(processes=workers) as pool:
             results = pool.map(_embed_batch, batches)
