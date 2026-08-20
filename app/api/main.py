@@ -8,13 +8,14 @@ from pydantic import BaseModel
 from app.api.auth import require_permission
 from app.api.rate_limit import enforce_rate_limit
 from app.config import EMBEDDING_DIM
+from app.indexing.faiss_index import FAISSIndex
 from app.ingestion.chunker import TextChunker
 from app.ingestion.embedder import EmbeddingGenerator
-from app.indexing.faiss_index import FAISSIndex
 from app.storage.metadata_store import MetadataStore
 
 try:
     import knn_cpp
+
     _brute_force_available = True
 except ImportError:
     # the C++ extension is an opt-in build step (scripts/build_cpp.sh) —
@@ -100,7 +101,14 @@ def search(q: str, k: int = 10, index: str = "faiss", _: str = Depends(require_p
         chunk = metadata_store.get(int(position))
         if chunk is None:
             continue
-        results.append(SearchResult(doc_id=chunk.get("doc_id"), title=chunk.get("title"), text=chunk["text"], score=float(score)))
+        results.append(
+            SearchResult(
+                doc_id=chunk.get("doc_id"),
+                title=chunk.get("title"),
+                text=chunk["text"],
+                score=float(score),
+            )
+        )
 
     return SearchResponse(results=results, latency_ms=latency_ms, index_used=index)
 

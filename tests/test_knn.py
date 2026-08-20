@@ -18,11 +18,14 @@ def test_l2_finds_the_actually_closest_points():
 
 
 def test_cosine_ranks_by_angle_not_magnitude():
-    vectors = np.array([
-        [1.0, 0.0],   # same direction as query
-        [0.0, 1.0],   # orthogonal
-        [100.0, 0.0],  # same direction, huge magnitude — should tie with the first
-    ], dtype=np.float32)
+    vectors = np.array(
+        [
+            [1.0, 0.0],  # same direction as query
+            [0.0, 1.0],  # orthogonal
+            [100.0, 0.0],  # same direction, huge magnitude — should tie with the first
+        ],
+        dtype=np.float32,
+    )
     index = knn_cpp.BruteForceKNN(dim=2, metric="cosine")
     index.add(vectors)
 
