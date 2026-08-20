@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
-from app.config import EMBEDDING_MODEL_NAME, EMBEDDING_BATCH_SIZE
+from app.config import EMBEDDING_BATCH_SIZE, EMBEDDING_MODEL_NAME
 
 
 class EmbeddingGenerator:

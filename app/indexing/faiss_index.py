@@ -1,7 +1,7 @@
 import faiss
 import numpy as np
 
-from app.config import EMBEDDING_DIM, HNSW_M, HNSW_EF_CONSTRUCTION, HNSW_EF_SEARCH, IVF_NLIST, IVF_NPROBE
+from app.config import EMBEDDING_DIM, HNSW_EF_CONSTRUCTION, HNSW_EF_SEARCH, HNSW_M, IVF_NLIST, IVF_NPROBE
 
 
 class FAISSIndex:
