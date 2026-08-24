@@ -17,7 +17,7 @@ class FAISSIndex:
 
     def _build_index(self):
         if self.index_type == "HNSW":
-            index = faiss.IndexHNSWFlat(self.dim, HNSW_M)
+            index = faiss.IndexHNSWFlat(self.dim, HNSW_M, faiss.METRIC_INNER_PRODUCT)
             index.hnsw.efConstruction = HNSW_EF_CONSTRUCTION
             index.hnsw.efSearch = HNSW_EF_SEARCH
             return index
