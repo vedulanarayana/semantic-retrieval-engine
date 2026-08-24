@@ -1,4 +1,5 @@
 import time
+from threading import Lock
 from typing import Dict, List, Optional
 
 import numpy as np
@@ -29,6 +30,13 @@ embedder = EmbeddingGenerator()
 metadata_store = MetadataStore()
 faiss_index = FAISSIndex("HNSW")
 brute_force_index = knn_cpp.BruteForceKNN(EMBEDDING_DIM, "cosine") if _brute_force_available else None
+
+# FastAPI runs sync path operations in a thread pool, so concurrent /ingest
+# calls can interleave. metadata_store positions are assigned sequentially
+# and must line up 1:1 with vector-index insertion order (see
+# MetadataStore's class comment) — this lock keeps the "add to the vector
+# index(es), then assign positions" sequence atomic across requests.
+_ingest_lock = Lock()
 
 
 class IngestRequest(BaseModel):
@@ -70,12 +78,14 @@ def ingest(request: IngestRequest, _: str = Depends(require_permission("ingest")
 
     embeddings = np.array(embeddings, dtype=np.float32)
 
-    faiss_index.add(embeddings)
-    if brute_force_index is not None:
-        brute_force_index.add(embeddings)
-    metadata_store.add_batch(chunks)
+    with _ingest_lock:
+        faiss_index.add(embeddings)
+        if brute_force_index is not None:
+            brute_force_index.add(embeddings)
+        metadata_store.add_batch(chunks)
+        total_chunks = metadata_store.count()
 
-    return IngestResponse(chunks_added=len(chunks), total_chunks=metadata_store.count())
+    return IngestResponse(chunks_added=len(chunks), total_chunks=total_chunks)
 
 
 @app.get("/search", response_model=SearchResponse, dependencies=[Depends(enforce_rate_limit)])

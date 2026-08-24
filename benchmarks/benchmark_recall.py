@@ -15,7 +15,12 @@ def compute_ground_truth(embeddings: np.ndarray, queries: np.ndarray, k: int) ->
 
 
 def recall_at_k(retrieved: np.ndarray, ground_truth: np.ndarray, k: int) -> float:
-    return len(set(retrieved) & set(ground_truth)) / k
+    # FAISS pads results with -1 when a query asks for more neighbors than
+    # exist in the index; without filtering those out, two padded results
+    # would count as a "matching" neighbor and inflate recall
+    retrieved_valid = {i for i in retrieved.tolist() if i >= 0}
+    ground_truth_valid = {i for i in ground_truth.tolist() if i >= 0}
+    return len(retrieved_valid & ground_truth_valid) / k
 
 
 def run_benchmark(embeddings: np.ndarray, queries: np.ndarray, k: int = 10) -> List[dict]:

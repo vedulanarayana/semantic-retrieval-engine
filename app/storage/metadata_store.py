@@ -60,7 +60,18 @@ class MetadataStore:
         return {"doc_id": doc_id, "title": title, "text": text, **json.loads(extra)}
 
     def get_many(self, positions: List[int]) -> List[Optional[Dict]]:
-        return [self.get(p) for p in positions]
+        if not positions:
+            return []
+        placeholders = ",".join("?" * len(positions))
+        rows = self.conn.execute(
+            f"SELECT position, doc_id, title, text, extra FROM chunks WHERE position IN ({placeholders})",
+            positions,
+        ).fetchall()
+        by_position = {
+            position: {"doc_id": doc_id, "title": title, "text": text, **json.loads(extra)}
+            for position, doc_id, title, text, extra in rows
+        }
+        return [by_position.get(p) for p in positions]
 
     def count(self) -> int:
         return self.conn.execute("SELECT COUNT(*) FROM chunks").fetchone()[0]
